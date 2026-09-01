@@ -1,0 +1,50 @@
+# Dependencias
+/vendor/
+
+# Build / cache
+*.log
+
+# Entorno y secretos
+/.env
+/.env.*
+!/.env.example
+.cursor/mcp.json
+
+# PHP / tests
+.phpunit.result.cache
+.phpunit.cache/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Storage local
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+
+# Archivos temporales
+*.rar
+*.zip
+*.tar.gz
+.build-tmp/
+
+# Binarios locales (ffmpeg estático para transcode Signage)
+/tools/bin/*
+!/tools/bin/.gitkeep
+
+# Brainstorm / visual companion local
+.superpowers/
+
+# Git worktrees locales
+.worktrees/
+
+# Backups locales
+/backups/*
+!/backups/.htaccess
+!/backups/README.md

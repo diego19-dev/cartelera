@@ -1,0 +1,22 @@
+# Unificar CSET bajo /tv (AllowOverride All en vhost *:80 ServerName 10.5.213.103)
+# Una sola carpeta en DocumentRoot: cset/. Sin symlink html/tv.
+# Preferible: Alias Apache (scripts/enable-cset-alias.sh). Este archivo es fallback.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bookmarks /cset → /tv
+    RewriteRule ^cset/?$ /tv/ [R=301,L]
+    RewriteRule ^cset/(.*)$ /tv/$1 [R=301,L]
+
+    # /tv/ = cartelera PHP
+    RewriteRule ^tv/?$ cset/public/index.php [L]
+
+    # API front controller (PATH_INFO)
+    RewriteCond %{REQUEST_URI} !index\.php [NC]
+    RewriteRule ^tv/api(?:/(.*))?$ cset/public/api/index.php/$1 [QSA,L]
+
+    # Archivos/directorios reales bajo public/
+    RewriteCond %{DOCUMENT_ROOT}/cset/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/cset/public/$1 -d
+    RewriteRule ^tv/(.*)$ cset/public/$1 [L]
+</IfModule>
