@@ -169,7 +169,7 @@ class MediaController {
         return $result;
     }
 
-    private static function uploadErrorMessage(mixed $code): string {
+    public static function uploadErrorMessage(mixed $code): string {
         $maxUpload = ini_get('upload_max_filesize') ?: '?';
         $maxPost = ini_get('post_max_size') ?: '?';
         return match ((int) $code) {
@@ -294,15 +294,13 @@ class MediaController {
     }
 
     /**
-     * media_files no guarda sector/área por archivo, así que no hay forma correcta de
-     * validar "según área" para program_head (el chequeo anterior comparaba la categoría
-     * del archivo —academic/center/general/branding— contra el sector del usuario, que
-     * nunca coincide: siempre denegaba en silencio a program_head). Ver
-     * AUDITORIA_SEGURIDAD_CSET.md hallazgo M3. Hasta que se agregue esa columna, se
-     * restringe a admin/editor — nunca se abre a un rol de más sin poder verificarlo.
+     * media_files no guarda sector/área por archivo. La biblioteca de medios
+     * es solo admin; los editores siguen subiendo archivos desde formularios
+     * de contenido (académico/centro), no desde esta biblioteca.
+     * Ver AUDITORIA_SEGURIDAD_CSET.md hallazgo M3.
      */
     public static function delete(int $mediaId): bool {
-        if (!Session::hasRole(['admin', 'editor'])) {
+        if (!Session::hasRole('admin')) {
             throw new RuntimeException('Sin permisos');
         }
         return MediaFile::delete($mediaId);

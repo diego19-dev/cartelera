@@ -4,6 +4,8 @@ require_once BASE_PATH . '/src/Views/helpers.php';
 require_once BASE_PATH . '/src/Views/auth_guard.php';
 require_once BASE_PATH . '/src/Views/crud.php';
 
+cset_require_panel_module('center');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
     require_post_csrf();
     $id = (int) ($_POST['id'] ?? 0);

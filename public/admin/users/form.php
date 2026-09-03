@@ -13,12 +13,16 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_post_csrf();
     try {
+        $validated = cset_validate_user_fields(
+            trim((string) ($_POST['role'] ?? 'program_head')),
+            trim((string) ($_POST['program_area'] ?? '')) ?: null
+        );
         $data = [
             'username' => trim((string) ($_POST['username'] ?? '')),
             'full_name' => trim((string) ($_POST['full_name'] ?? '')),
             'email' => trim((string) ($_POST['email'] ?? '')),
-            'role' => trim((string) ($_POST['role'] ?? 'editor')),
-            'program_area' => trim((string) ($_POST['program_area'] ?? '')) ?: null,
+            'role' => $validated['role'],
+            'program_area' => $validated['program_area'],
             'is_active' => bool_from_post('is_active'),
         ];
         if ($data['username'] === '' || $data['full_name'] === '') {
@@ -75,18 +79,19 @@ $v = $item ?? [];
 <div class="form-group"><label>Nombre completo</label><input name="full_name" required value="<?= e($v['full_name'] ?? '') ?>"></div>
 <div class="form-group"><label>Email</label><input type="email" name="email" value="<?= e($v['email'] ?? '') ?>"></div>
 <div class="form-group"><label>Rol</label>
-<select name="role">
-<?php foreach (['admin' => 'Admin', 'editor' => 'Editor', 'program_head' => 'Jefe de programa', 'viewer' => 'Solo lectura'] as $k => $label): ?>
-<option value="<?= e($k) ?>" <?= (($v['role'] ?? '') === $k) ? 'selected' : '' ?>><?= e($label) ?></option>
+<select name="role" id="user-role">
+<?php foreach (cset_user_role_options($v['role'] ?? null) as $k => $label): ?>
+<option value="<?= e($k) ?>" <?= (($v['role'] ?? 'program_head') === $k) ? 'selected' : '' ?>><?= e($label) ?></option>
 <?php endforeach; ?>
 </select></div>
-<div class="form-group"><label>Área de programa</label>
-<select name="program_area">
+<div class="form-group" id="program-area-group"><label>Área de programa</label>
+<select name="program_area" id="program-area">
 <option value="">—</option>
 <?php foreach (PROGRAM_AREAS as $k => $label): ?>
 <option value="<?= e($k) ?>" <?= (($v['program_area'] ?? '') === $k) ? 'selected' : '' ?>><?= e($label) ?></option>
 <?php endforeach; ?>
-</select></div>
+</select>
+<p class="hint" id="program-area-hint">Obligatorio para jefes de programa.</p></div>
 <div class="form-group"><label>Contraseña <?= $id ? '(dejar vacío para no cambiar)' : '' ?></label>
 <input type="password" id="password" name="password" <?= $id ? '' : 'required' ?> autocomplete="new-password">
 <ul class="req-list" id="password-requirements" aria-live="polite">
@@ -105,4 +110,18 @@ $v = $item ?? [];
 </div>
 </form></div>
 <script src="<?= e(cset_url('assets/js/password-form.js')) ?>?v=1"></script>
+<script>
+(function () {
+  var role = document.getElementById('user-role');
+  var areaGroup = document.getElementById('program-area-group');
+  var area = document.getElementById('program-area');
+  function syncArea() {
+    var isHead = role && role.value === 'program_head';
+    if (areaGroup) areaGroup.style.display = isHead ? '' : 'none';
+    if (area) area.required = isHead;
+  }
+  role && role.addEventListener('change', syncArea);
+  syncArea();
+})();
+</script>
 <?php require BASE_PATH . '/src/Views/footer.php'; ?>

@@ -254,7 +254,30 @@ body {
   flex-shrink: 0;
   position: relative;
   z-index: 1;
-  margin-right: 1.5rem;
+}
+
+.tv-brand-text {
+  position: relative;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  line-height: 1.15;
+  text-align: center;
+  z-index: 1;
+  pointer-events: none;
+  padding: 0 0.75rem;
+}
+
+.tv-brand-title {
+  font-size: var(--tv-brand-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  overflow: hidden;
+  max-height: 2.4em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .tv-logo {
@@ -294,29 +317,6 @@ body {
 .tv-logo-fallback svg {
   width: 55%;
   height: 55%;
-}
-
-.tv-brand-text {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  max-width: calc(100% - 18rem);
-  min-width: 0;
-  line-height: 1.15;
-  text-align: center;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.tv-brand-title {
-  font-size: var(--tv-brand-title);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
-  overflow: hidden;
-  max-height: 2.4em;
 }
 
 .tv-brand-sub {
@@ -396,6 +396,46 @@ body {
   text-transform: capitalize;
   color: rgba(255, 255, 255, 0.8);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Vista previa embebida / pantallas estrechas: compactar barra superior */
+@media (max-width: 1100px) {
+  .tv-screen {
+    --tv-logo: 3rem;
+    --tv-brand-title: 1.25rem;
+    --tv-brand-sub: 0.72rem;
+    --tv-clock: 1.85rem;
+    --tv-clock-sec: 0.8rem;
+    --tv-date: 0.68rem;
+    --tv-header-pad-y: 0.65rem;
+    --tv-pad-x: 1rem;
+    --tv-footer-pad-x: 1rem;
+    --tv-footer-text: 0.78rem;
+  }
+
+  .tv-header {
+    gap: 0.5rem;
+  }
+
+  .tv-brand-text {
+    padding: 0 0.35rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .tv-screen {
+    --tv-logo: 2.4rem;
+    --tv-brand-title: 1rem;
+    --tv-clock: 1.45rem;
+    --tv-date: 0.62rem;
+  }
+
+  .tv-brand-sub {
+    display: none;
+  }
 }
 
 /* Body + stage */

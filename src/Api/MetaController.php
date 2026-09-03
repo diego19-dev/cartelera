@@ -6,11 +6,7 @@ class MetaController extends BaseController {
         $this->ok([
             'program_areas' => PROGRAM_AREAS,
             'content_categories' => CONTENT_CATEGORIES,
-            'roles' => [
-                'admin' => 'Administrador',
-                'program_head' => 'Jefe de Programa',
-                'editor' => 'Editor',
-            ],
+            'roles' => cset_assignable_roles(),
             'app_name' => APP_NAME,
             'app_base' => APP_BASE,
         ]);

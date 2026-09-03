@@ -68,6 +68,9 @@ class ApiDispatcher {
         }
 
         if ($resource === 'center') {
+            if (in_array('center', PANEL_DISABLED_MODULES, true)) {
+                Security::jsonResponse(['ok' => false, 'error' => 'Módulo no disponible'], 403);
+            }
             $c = new CenterController();
             if ($method === 'GET' && $id === null) return $c->index();
             if ($method === 'GET' && $id) return $c->show($id);
@@ -91,6 +94,9 @@ class ApiDispatcher {
         }
 
         if ($resource === 'gallery') {
+            if (in_array('gallery', PANEL_DISABLED_MODULES, true)) {
+                Security::jsonResponse(['ok' => false, 'error' => 'Módulo no disponible'], 403);
+            }
             $c = new GalleryController();
             if ($method === 'GET' && $id === null) return $c->index();
             if ($method === 'GET' && $id) return $c->show($id);

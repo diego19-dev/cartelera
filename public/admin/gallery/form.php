@@ -4,6 +4,8 @@ require_once BASE_PATH . '/src/Views/helpers.php';
 require_once BASE_PATH . '/src/Views/auth_guard.php';
 require_once BASE_PATH . '/src/Views/crud.php';
 
+cset_require_panel_module('gallery');
+
 $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
 $item = $id ? GalleryContent::find($id) : null;
 $error = '';

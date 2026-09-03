@@ -27,6 +27,9 @@ class LoginAttempt {
 
     /** true si la IP superó el máximo de intentos fallidos en la ventana de minutos. */
     public static function isBlocked(string $ip, int $maxAttempts, int $windowMinutes): bool {
+        if (self::shouldSkipRateLimit($ip)) {
+            return false;
+        }
         $count = (int) Database::getInstance()->fetchColumn(
             "SELECT COUNT(*) FROM login_attempts
              WHERE ip_address = ? AND success = FALSE
@@ -34,6 +37,24 @@ class LoginAttempt {
             [$ip, $windowMinutes]
         );
         return $count >= $maxAttempts;
+    }
+
+    /** En desarrollo local no bloquear loopback (evita quedar fuera tras pruebas). */
+    public static function shouldSkipRateLimit(string $ip): bool {
+        if (APP_ENV !== 'development') {
+            return false;
+        }
+        return in_array($ip, ['127.0.0.1', '::1', '0:0:0:0:0:0:0:1'], true);
+    }
+
+    /** Limpia intentos fallidos recientes de una IP (desbloqueo manual). */
+    public static function clearFailuresForIp(string $ip, int $windowMinutes = 15): int {
+        return Database::getInstance()->query(
+            "DELETE FROM login_attempts
+             WHERE ip_address = ? AND success = FALSE
+               AND created_at > now() - make_interval(mins => ?::int)",
+            [$ip, $windowMinutes]
+        )->rowCount();
     }
 
     /** Retención de 90 días — igual criterio que SmartCSET (tab_intentos_login). */

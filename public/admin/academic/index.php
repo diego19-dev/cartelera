@@ -8,14 +8,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
     require_post_csrf();
     $id = (int) ($_POST['id'] ?? 0);
     if ($id > 0) {
-        AcademicContent::delete($id);
-        Logger::log(Session::userId(), 'delete', 'academic_content', $id);
-        flash_set('success', 'Registro eliminado.');
+        $item = AcademicContent::find($id);
+        if (!$item || !cset_can_manage_academic_item($item)) {
+            flash_set('error', 'Sin permisos para eliminar este contenido.');
+        } else {
+            try {
+                AcademicContent::delete($id);
+                Logger::log(Session::userId(), 'delete', 'academic_content', $id);
+                flash_set('success', 'Registro eliminado.');
+            } catch (Throwable $e) {
+                flash_set('error', 'No se pudo eliminar el registro.');
+            }
+        }
     }
     redirect(APP_BASE . '/admin/academic/index.php');
 }
 
-$items = AcademicContent::all();
+$items = cset_academic_list_for_user();
 $pageTitle = 'Contenido Académico';
 require BASE_PATH . '/src/Views/header.php';
 ?>
@@ -24,16 +33,13 @@ require BASE_PATH . '/src/Views/header.php';
     <a class="btn" href="<?= e(APP_BASE) ?>/admin/academic/form.php">Nuevo</a>
 </div>
 <div class="card"><div class="table-wrap"><table>
-<thead><tr><th>Título</th><th>Descripción</th><th>Tipo programa</th><th>Área</th><th>Orden</th><th>Estado</th><th></th></tr></thead>
+<thead><tr><th>Orden</th><th>Media</th><th>Estado</th><th></th></tr></thead>
 <tbody>
-<?php if (!$items): ?><tr><td colspan="7" class="muted">Sin registros.</td></tr><?php endif; ?>
+<?php if (!$items): ?><tr><td colspan="4" class="muted">Sin registros.</td></tr><?php endif; ?>
 <?php foreach ($items as $row): ?>
 <tr>
-<td><?= e($row['title'] ?? $row['display_order'] ?? '') ?></td>
-<td><?= e($row['description'] ?? $row['display_order'] ?? '') ?></td>
-<td><?= e($row['program_type'] ?? $row['display_order'] ?? '') ?></td>
-<td><?= e($row['program_area'] ?? $row['display_order'] ?? '') ?></td>
-<td><?= e($row['sort_order'] ?? $row['display_order'] ?? '') ?></td>
+<td><?= e((string) ($row['display_order'] ?? '')) ?></td>
+<td><?= e($row['media_path'] ?? '—') ?></td>
   <td><span class="badge <?= !empty($row['is_active']) ? 'badge-ok' : 'badge-off' ?>"><?= !empty($row['is_active']) ? 'Activo' : 'Inactivo' ?></span></td>
   <td class="actions">
     <a class="btn btn-ghost btn-sm" href="<?= e(APP_BASE) ?>/admin/academic/form.php?id=<?= (int)$row['id'] ?>">Editar</a>

@@ -262,6 +262,25 @@ fieldset.validity legend { padding: 0 .4rem; font-weight: 600; }
 .tv-preview {
   width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--border); border-radius: 12px; background: #000;
 }
+.tv-preview-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #000;
+}
+.tv-preview-scale {
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+}
+.tv-preview-frame {
+  display: block;
+  width: 1920px;
+  height: 1080px;
+  border: 0;
+}
 .danger-zone { border-color: rgba(220,38,38,.4); }
 .thumb { max-height: 72px; border-radius: 8px; object-fit: cover; }
 .req-list { margin: .4rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: .78rem; }

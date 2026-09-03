@@ -45,6 +45,20 @@
     setTimeout(() => el.remove(), 4000);
   };
 
+  function dismissFlashAlerts() {
+    document.querySelectorAll('[data-flash-alert]').forEach((el) => el.remove());
+  }
+  document.querySelectorAll('[data-flash-alert]').forEach((el) => {
+    setTimeout(() => {
+      el.style.transition = 'opacity .25s ease';
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 250);
+    }, 3500);
+  });
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) dismissFlashAlerts();
+  });
+
   let confirmResolver = null;
   const dialog = document.getElementById('confirm-dialog');
   const titleEl = document.getElementById('confirm-title');
@@ -157,6 +171,27 @@
     });
   };
 
+  function initTvPreviews() {
+    document.querySelectorAll('[data-tv-preview]').forEach(function (box) {
+      var inner = box.querySelector('[data-tv-scale]');
+      if (!inner) return;
+      function update() {
+        var w = box.clientWidth;
+        if (w <= 0) return;
+        var scale = w / 1920;
+        inner.style.transform = 'scale(' + scale + ')';
+        inner.style.transformOrigin = 'top left';
+        box.style.height = Math.round(1080 * scale) + 'px';
+      }
+      update();
+      if (window.ResizeObserver) {
+        new ResizeObserver(update).observe(box);
+      } else {
+        window.addEventListener('resize', update);
+      }
+    });
+  }
+
   window.initValidityField = function (root) {
     if (!root) return;
     const hidden = root.querySelector('input[name="show_until"]');
@@ -223,4 +258,6 @@
     unit && unit.addEventListener('change', sync);
     sync();
   };
+
+  initTvPreviews();
 })();

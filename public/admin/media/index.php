@@ -4,6 +4,8 @@ require_once BASE_PATH . '/src/Views/helpers.php';
 require_once BASE_PATH . '/src/Views/auth_guard.php';
 require_once BASE_PATH . '/src/Views/crud.php';
 
+Auth::requireRole(['admin']);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
     require_post_csrf();
     $id = (int) ($_POST['id'] ?? 0);
@@ -15,52 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
     redirect(APP_BASE . '/admin/media/index.php');
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'upload') {
-    require_post_csrf();
-    try {
-        $category = trim((string) ($_POST['category'] ?? 'media')) ?: 'media';
-        $filename = save_upload('media_file', $category);
-        if (!$filename) {
-            throw new RuntimeException('Seleccione un archivo.');
-        }
-        $id = MediaFile::register([
-            'filename' => $filename,
-            'original_name' => $_FILES['media_file']['name'] ?? $filename,
-            'mime_type' => $_FILES['media_file']['type'] ?? null,
-            'file_size' => (int) ($_FILES['media_file']['size'] ?? 0),
-            'file_path' => UPLOAD_PATH . '/' . $category . '/' . $filename,
-            'category' => $category,
-        ], (int) Session::userId());
-        Logger::log(Session::userId(), 'upload', 'media_files', $id);
-        flash_set('success', 'Archivo subido.');
-    } catch (Throwable $e) {
-        flash_set('error', $e->getMessage());
-    }
-    redirect(APP_BASE . '/admin/media/index.php');
-}
-
 $items = MediaFile::all(200);
 $pageTitle = 'Biblioteca Media';
 require BASE_PATH . '/src/Views/header.php';
 ?>
 <div class="toolbar">
     <div class="muted"><?= count($items) ?> archivo(s)</div>
-</div>
-<div class="card">
-    <h2>Subir archivo</h2>
-    <form method="post" enctype="multipart/form-data">
-        <?= Security::csrfField() ?>
-        <input type="hidden" name="action" value="upload">
-        <div class="form-group"><label>Categoría</label>
-            <select name="category">
-                <?php foreach (['media','general','center','academic','gallery','branding','welcome'] as $cat): ?>
-                    <option value="<?= e($cat) ?>"><?= e($cat) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group"><label>Archivo</label><input type="file" name="media_file" required></div>
-        <button class="btn" type="submit">Subir</button>
-    </form>
 </div>
 <div class="card">
 <div class="table-wrap"><table>

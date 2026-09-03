@@ -4,6 +4,7 @@ class GeneralController extends BaseController {
 
     public function index(): void {
         $this->requireAuth();
+        $this->requireContentRole();
         $cat = $_GET['category'] ?? $_GET['cat'] ?? '';
         $items = GeneralContent::all();
         if ($cat !== '') {
@@ -18,6 +19,7 @@ class GeneralController extends BaseController {
 
     public function show(int $id): void {
         $this->requireAuth();
+        $this->requireContentRole();
         $item = GeneralContent::find($id);
         if (!$item) $this->fail('No encontrado', 404);
         $this->ok(['item' => $item]);
@@ -72,9 +74,7 @@ class GeneralController extends BaseController {
 
     public function indicators(): void {
         $this->requireAuth();
-        if (!Session::hasRole(['admin', 'editor'])) {
-            $this->fail('Acceso denegado', 403);
-        }
+        $this->requireContentRole();
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $rows = Database::getInstance()->fetchAll(
@@ -114,12 +114,11 @@ class GeneralController extends BaseController {
     }
 
     /**
-     * docs/QA-CRUD-CHECKLIST.md: General CRUD es admin+editor; program_head solo lectura.
-     * Ver AUDITORIA_SEGURIDAD_CSET.md hallazgo C6 — antes esta clase no tenía ningún
-     * control de rol y cualquier usuario autenticado podía mutar contenido General.
+     * docs/QA-CRUD-CHECKLIST.md: General CRUD es solo admin.
+     * Ver AUDITORIA_SEGURIDAD_CSET.md hallazgo C6.
      */
     private function requireContentRole(): void {
-        if (!Session::hasRole(['admin', 'editor'])) {
+        if (!Session::hasRole('admin')) {
             $this->fail('Sin permisos', 403);
         }
     }

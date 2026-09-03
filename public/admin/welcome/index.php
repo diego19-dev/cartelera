@@ -148,7 +148,11 @@ endforeach; ?>
 <div class="card">
     <h2>Vista previa</h2>
     <p class="hint">Cartelera en vivo. Los cambios se ven tras guardar (la TV consulta cada ~30 s).</p>
-    <iframe class="tv-preview" src="<?= e(APP_BASE) ?>/" title="Vista previa TV"></iframe>
+    <div class="tv-preview-wrap" data-tv-preview>
+      <div class="tv-preview-scale" data-tv-scale style="width:1920px;height:1080px">
+        <iframe class="tv-preview-frame" src="<?= e(APP_BASE) ?>/" title="Vista previa TV" width="1920" height="1080"></iframe>
+      </div>
+    </div>
 </div>
 </div>
 <?php require BASE_PATH . '/src/Views/footer.php'; ?>

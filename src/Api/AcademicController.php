@@ -4,8 +4,7 @@ class AcademicController extends BaseController {
 
     public function index(): void {
         $this->requireAuth();
-        $items = AcademicContent::all();
-        $items = $this->filterByArea($items, 'program_area');
+        $items = cset_academic_list_for_user();
 
         $search = trim($_GET['search'] ?? '');
         $area = $_GET['area'] ?? '';
@@ -28,7 +27,7 @@ class AcademicController extends BaseController {
         $this->requireAuth();
         $item = AcademicContent::find($id);
         if (!$item) $this->fail('No encontrado', 404);
-        if (!$this->canViewItem($item)) $this->fail('Acceso denegado', 403);
+        if (!$this->canManageItem($item)) $this->fail('Acceso denegado', 403);
         $this->ok(['item' => $item]);
     }
 
@@ -37,6 +36,7 @@ class AcademicController extends BaseController {
         $this->requireCsrf();
         $this->assertMultipartIntact();
         $data = $this->collectData();
+        $data['program_area'] = $this->resolveProgramArea(null, $data);
         if (!Auth::canEditArea($data['program_area'] ?? null)) {
             $this->fail('Sin permisos para este sector', 403);
         }
@@ -57,10 +57,11 @@ class AcademicController extends BaseController {
         $this->assertMultipartIntact();
         $existing = AcademicContent::find($id);
         if (!$existing) $this->fail('No encontrado', 404);
-        if (!Auth::canEditArea($existing['program_area'] ?? null)) {
+        if (!$this->canManageItem($existing)) {
             $this->fail('Sin permisos', 403);
         }
         $data = $this->collectData();
+        $data['program_area'] = $this->resolveProgramArea($existing, $data);
         if (!empty($data['program_area']) && !Auth::canEditArea($data['program_area'])) {
             $this->fail('Sin permisos para el sector', 403);
         }
@@ -79,7 +80,7 @@ class AcademicController extends BaseController {
         $this->requireCsrf();
         $existing = AcademicContent::find($id);
         if (!$existing) $this->fail('No encontrado', 404);
-        if (!Auth::canEditArea($existing['program_area'] ?? null)) {
+        if (!$this->canManageItem($existing)) {
             $this->fail('Sin permisos', 403);
         }
         AcademicContent::delete($id);
@@ -92,7 +93,7 @@ class AcademicController extends BaseController {
         $this->requireCsrf();
         $existing = AcademicContent::find($id);
         if (!$existing) $this->fail('No encontrado', 404);
-        if (!Auth::canEditArea($existing['program_area'] ?? null)) {
+        if (!$this->canManageItem($existing)) {
             $this->fail('Sin permisos', 403);
         }
         AcademicContent::toggleActive($id);
@@ -100,13 +101,8 @@ class AcademicController extends BaseController {
         $this->ok(['item' => AcademicContent::find($id)]);
     }
 
-    private function canViewItem(array $item): bool {
-        if (Session::hasRole(['admin', 'editor'])) return true;
-        if (Session::hasRole('program_head')) {
-            $area = Session::userProgramArea();
-            return ($item['program_area'] ?? null) === $area || empty($item['program_area']);
-        }
-        return true;
+    private function canManageItem(array $item): bool {
+        return cset_can_manage_academic_item($item);
     }
 
     private function collectData(): array {
@@ -117,6 +113,24 @@ class AcademicController extends BaseController {
         return $data;
     }
 
+    private function resolveProgramArea(?array $existing, array $data): ?string {
+        $fromPayload = trim((string) ($data['program_area'] ?? ''));
+        if ($fromPayload !== '') {
+            return $fromPayload;
+        }
+        if ($existing !== null) {
+            $fromExisting = trim((string) ($existing['program_area'] ?? ''));
+            if ($fromExisting !== '') {
+                return $fromExisting;
+            }
+        }
+        if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
+            $area = Session::userProgramArea();
+            return $area !== null && trim($area) !== '' ? trim($area) : null;
+        }
+        return null;
+    }
+
     /**
      * - video nuevo: duración forzada a la del archivo
      * - video existente sin re-subir: no tocar duration_seconds
@@ -124,7 +138,11 @@ class AcademicController extends BaseController {
      */
     private function applyMediaAndDuration(array &$data, ?array $existing): void {
         if (!empty($_FILES['media_file']['name'])) {
-            $upload = MediaController::upload($_FILES['media_file'], 'academic');
+            try {
+                $upload = MediaController::upload($_FILES['media_file'], 'academic');
+            } catch (Throwable $e) {
+                throw new InvalidArgumentException($e->getMessage());
+            }
             $data['media_path'] = $upload['filename'];
             $data['media_type'] = $upload['type'];
             if (($upload['type'] ?? '') === 'video') {

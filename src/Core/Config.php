@@ -26,10 +26,10 @@ if (DB_PASS === '') {
 // CONFIGURACIÓN DE LA APLICACIÓN
 // =====================================================
 define('APP_NAME',   'CSET-TV Cartelera Digital');
-define('APP_ENV',    'production');             // development | production
-define('APP_DEBUG',  false);                    // true solo en desarrollo
+define('APP_ENV',    EnvLoader::get('APP_ENV', 'production'));
+define('APP_DEBUG',  EnvLoader::get('APP_DEBUG', APP_ENV === 'development' ? '1' : '0') === '1');
 define('APP_URL',    EnvLoader::get('APP_URL', 'http://10.5.213.103/tv'));
-define('APP_BASE',   '/tv');
+define('APP_BASE',   EnvLoader::get('APP_BASE', '/tv'));
 define('APP_TIMEZONE','America/Bogota');          // Ajustar según país
 
 // =====================================================
@@ -93,6 +93,12 @@ define('PROGRAM_AREAS', [
     'barismo'     => 'Barismo',
     'eventos'     => 'Gestión de Eventos',
 ]);
+
+/** Módulos ocultos del panel (sin menú ni CRUD). La TV sigue sirviendo su contenido. */
+define('PANEL_DISABLED_MODULES', ['center', 'gallery']);
+
+/** Roles asignables al crear/editar usuarios desde el panel. */
+define('PANEL_ASSIGNABLE_ROLES', ['admin', 'program_head']);
 
 define('CONTENT_CATEGORIES', [
     'news'         => 'Noticias',

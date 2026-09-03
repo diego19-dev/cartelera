@@ -7,9 +7,10 @@ Matriz de verificación manual antes de deploy.
 | Login/Logout | ✓ | ✓ | ✓ |
 | Dashboard | ✓ | ✓ | ✓ |
 | Académico CRUD | ✓ | ✓ | solo su área |
-| Centro CRUD | ✓ | ✓ | solo su sector |
-| General CRUD | ✓ | ✓ | lectura |
-| Medios | ✓ | ✓ | según área |
+| Centro CRUD | ✗ | ✗ | ✗ |
+| Galería CRUD | ✗ | ✗ | ✗ |
+| General CRUD | ✓ | ✗ | ✗ |
+| Medios | ✓ | ✗ | ✗ |
 | Usuarios | ✓ | ✗ | ✗ |
 | Config/Colores | ✓ | ✗ | ✗ |
 | TV polling | público | público | público |

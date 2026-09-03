@@ -123,14 +123,44 @@ HTML;
     }
 
     /**
+     * Sincroniza rol y área de programa desde BD (sesión puede quedar desactualizada).
+     */
+    public static function syncSessionFromDb(): void {
+        $id = Session::userId();
+        if (!$id) {
+            return;
+        }
+        $user = Database::getInstance()->fetch(
+            'SELECT role, program_area, full_name, is_active FROM users WHERE id = ?',
+            [$id]
+        );
+        if (!$user || !filter_var($user['is_active'], FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+        Session::set('user_role', $user['role']);
+        Session::set('user_program_area', $user['program_area']);
+        Session::set('user_name', $user['full_name']);
+    }
+
+    /**
      * Verifica que el usuario puede editar un sector
      */
     public static function canEditArea(?string $area): bool {
-        if (Session::hasRole(['admin', 'editor'])) return true;
-        if ($area && Session::hasRole('program_head') && Session::userProgramArea() === $area) {
+        if (Session::hasRole(['admin', 'editor'])) {
             return true;
         }
-        return false;
+        if (!Session::hasRole('program_head')) {
+            return false;
+        }
+        $userArea = Session::userProgramArea();
+        if ($userArea === null || trim($userArea) === '') {
+            return false;
+        }
+        $area = $area !== null ? trim($area) : '';
+        if ($area === '') {
+            return true;
+        }
+        return $area === $userArea;
     }
 
     /**

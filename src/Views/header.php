@@ -23,7 +23,7 @@ $csrf = Security::csrfToken();
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= e(cset_url('assets/css/app.css')) ?>?v=1">
+  <link rel="stylesheet" href="<?= e(cset_url('assets/css/app.css')) ?>?v=2">
   <script>
     (function () {
       try {
@@ -114,11 +114,11 @@ $csrf = Security::csrfToken();
     </header>
     <main class="min-h-0 flex-1 overflow-y-auto p-4 lg:p-6">
         <?php if ($flash): ?>
-            <div class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
+            <div class="alert alert-<?= e($flash['type']) ?>" data-flash-alert role="status"><?= e($flash['message']) ?></div>
         <?php endif; ?>
 <?php else: ?>
 <main class="grid-bg flex min-h-screen flex-col items-center justify-center px-4 py-6">
         <?php if ($flash): ?>
-            <div class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
+            <div class="alert alert-<?= e($flash['type']) ?>" data-flash-alert role="status"><?= e($flash['message']) ?></div>
         <?php endif; ?>
 <?php endif; ?>

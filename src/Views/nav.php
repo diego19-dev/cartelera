@@ -11,18 +11,16 @@
     <a href="<?= e(cset_url('admin/academic/index.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active('academic')) ?>">
         <?= cset_icon('graduation-cap') ?> Información Académica
     </a>
-    <a href="<?= e(cset_url('admin/center/index.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active('center')) ?>">
-        <?= cset_icon('building-2') ?> Nuestro Centro
-    </a>
+    <?php if (cset_can_manage_general()): ?>
     <a href="<?= e(cset_url('admin/general/index.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active('general')) ?>">
         <?= cset_icon('newspaper') ?> Información General
     </a>
-    <a href="<?= e(cset_url('admin/gallery/index.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active('gallery')) ?>">
-        <?= cset_icon('images') ?> Galería
-    </a>
+    <?php endif; ?>
+    <?php if (cset_can_manage_media()): ?>
     <a href="<?= e(cset_url('admin/media/index.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active('media')) ?>">
         <?= cset_icon('image') ?> Biblioteca de Medios
     </a>
+    <?php endif; ?>
     <?php if (cset_can_manage_users()): ?>
     <div class="px-3 pt-4 text-xs font-semibold uppercase tracking-wide text-white/50">Administración</div>
     <a href="<?= e(cset_url('admin/users/index.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-white/10 <?= e(cset_nav_active('users')) ?>">

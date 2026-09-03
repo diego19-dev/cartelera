@@ -4,4 +4,5 @@
  * Incluir después de bootstrap + helpers.
  */
 Auth::requireAuth(APP_BASE . '/login.php');
+Auth::syncSessionFromDb();
 $currentUser = Auth::userPayload();

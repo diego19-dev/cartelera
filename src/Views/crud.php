@@ -57,11 +57,41 @@ function duration_seconds_from_post(int $default = 15): int {
     return VideoDuration::clampSlideSeconds((int) ($_POST['duration_seconds'] ?? $default));
 }
 
-function apply_media_upload(array &$data, string $field, string $category, string $pathKey = 'media_path'): void {
-    if (empty($_FILES[$field]['name'])) {
+/**
+ * Si el body multipart supera post_max_size, PHP vacía $_POST y $_FILES.
+ */
+function assert_multipart_intact(): void {
+    $contentType = (string) ($_SERVER['CONTENT_TYPE'] ?? '');
+    if (stripos($contentType, 'multipart/form-data') === false) {
         return;
     }
-    $upload = MediaController::upload($_FILES[$field], $category);
+    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    if ($contentLength <= 0) {
+        return;
+    }
+    if (!empty($_POST) || !empty($_FILES)) {
+        return;
+    }
+    $maxPost = ini_get('post_max_size') ?: '?';
+    throw new RuntimeException(
+        "La subida supera el límite del servidor (post_max_size={$maxPost}). Reduzca el tamaño del archivo."
+    );
+}
+
+function apply_media_upload(array &$data, string $field, string $category, string $pathKey = 'media_path'): void {
+    $file = $_FILES[$field] ?? null;
+    if (!is_array($file)) {
+        return;
+    }
+    $name = trim((string) ($file['name'] ?? ''));
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+    if ($name === '' && $error === UPLOAD_ERR_NO_FILE) {
+        return;
+    }
+    if ($error !== UPLOAD_ERR_OK) {
+        throw new RuntimeException(MediaController::uploadErrorMessage($error));
+    }
+    $upload = MediaController::upload($file, $category);
     $data[$pathKey] = $upload['filename'];
     if ($pathKey === 'media_path' && !empty($upload['type'])) {
         $type = (string) $upload['type'];

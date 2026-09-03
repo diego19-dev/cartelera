@@ -14,7 +14,7 @@
   </div>
 </div>
 <script src="<?= e(cset_url('assets/js/api.js')) ?>"></script>
-<script src="<?= e(cset_url('assets/js/admin.js')) ?>"></script>
+<script src="<?= e(cset_url('assets/js/admin.js')) ?>?v=3"></script>
 <?php else: ?>
 </main>
 <?php endif; ?>

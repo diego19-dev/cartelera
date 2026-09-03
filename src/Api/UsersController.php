@@ -40,13 +40,21 @@ class UsersController extends BaseController {
         if (User::findByUsername($username)) {
             $this->fail('El usuario ya existe', 409);
         }
+        try {
+            $validated = cset_validate_user_fields(
+                (string) ($data['role'] ?? 'program_head'),
+                !empty($data['program_area']) ? (string) $data['program_area'] : null
+            );
+        } catch (RuntimeException $e) {
+            $this->fail($e->getMessage(), 422);
+        }
         $id = User::create([
             'username'     => $username,
             'password'     => $data['password'],
             'full_name'    => $data['full_name'],
             'email'        => $data['email'] ?? null,
-            'role'         => $data['role'] ?? 'editor',
-            'program_area' => $data['program_area'] ?: null,
+            'role'         => $validated['role'],
+            'program_area' => $validated['program_area'],
         ]);
         Logger::log(Session::userId(), 'create_user', 'users', $id);
         $user = User::find($id);
@@ -69,13 +77,25 @@ class UsersController extends BaseController {
             $this->fail('El usuario ya existe', 409);
         }
 
+        try {
+            $validated = cset_validate_user_fields(
+                (string) ($data['role'] ?? 'program_head'),
+                !empty($data['program_area']) ? (string) $data['program_area'] : null
+            );
+        } catch (RuntimeException $e) {
+            $this->fail($e->getMessage(), 422);
+        }
+
         $update = [
             'username'     => $username,
-            'full_name'    => $data['full_name'],
+            'full_name'    => trim((string) ($data['full_name'] ?? '')),
             'email'        => $data['email'] ?? null,
-            'role'         => $data['role'],
-            'program_area' => !empty($data['program_area']) ? $data['program_area'] : null,
+            'role'         => $validated['role'],
+            'program_area' => $validated['program_area'],
         ];
+        if ($update['full_name'] === '') {
+            $this->fail('El nombre completo es obligatorio', 422);
+        }
         if (!empty($data['password'])) {
             if (!Security::isStrongPassword($data['password'])) {
                 $this->fail('Contraseña débil', 422);

@@ -3,7 +3,7 @@
 class MediaLibraryController extends BaseController {
 
     public function index(): void {
-        $this->requireAuth();
+        $this->requireAdmin();
         $limit = min(500, max(1, (int) ($_GET['limit'] ?? 200)));
         $items = MediaFile::all($limit);
         $category = $_GET['category'] ?? '';
@@ -22,7 +22,7 @@ class MediaLibraryController extends BaseController {
     }
 
     public function store(): void {
-        $this->requireAuth();
+        $this->requireAdmin();
         $this->requireCsrf();
         $category = $_POST['category'] ?? 'general';
         if (!in_array($category, ['academic', 'center', 'general', 'gallery'], true)) {
@@ -43,7 +43,7 @@ class MediaLibraryController extends BaseController {
     }
 
     public function destroy(int $id): void {
-        $this->requireAuth();
+        $this->requireAdmin();
         $this->requireCsrf();
         try {
             MediaController::delete($id);

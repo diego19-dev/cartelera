@@ -97,6 +97,109 @@ function cset_can_manage_config(): bool {
     return Session::hasRole('admin');
 }
 
+function cset_can_manage_general(): bool {
+    return Session::hasRole('admin');
+}
+
+function cset_can_manage_media(): bool {
+    return Session::hasRole('admin');
+}
+
+/** Roles disponibles al crear o editar usuarios. */
+function cset_assignable_roles(): array {
+    return [
+        'admin' => 'Admin',
+        'program_head' => 'Jefe de programa',
+    ];
+}
+
+/** Opciones de rol para el formulario (incluye rol legacy al editar). */
+function cset_user_role_options(?string $currentRole = null): array {
+    $roles = cset_assignable_roles();
+    $currentRole = trim((string) $currentRole);
+    if ($currentRole !== '' && !isset($roles[$currentRole])) {
+        $roles[$currentRole] = role_label($currentRole) . ' (deprecado)';
+    }
+    return $roles;
+}
+
+/**
+ * Valida rol y área antes de guardar un usuario.
+ *
+ * @return array{role: string, program_area: ?string}
+ */
+function cset_validate_user_fields(string $role, ?string $programArea): array {
+    $role = trim($role);
+    if (!in_array($role, PANEL_ASSIGNABLE_ROLES, true)) {
+        throw new RuntimeException('Rol no permitido.');
+    }
+    $programArea = $programArea !== null && trim($programArea) !== '' ? trim($programArea) : null;
+    if ($role === 'program_head' && $programArea === null) {
+        throw new RuntimeException('Los jefes de programa deben tener un área asignada.');
+    }
+    if ($role === 'admin') {
+        $programArea = null;
+    }
+    return ['role' => $role, 'program_area' => $programArea];
+}
+
+/**
+ * Área de programa al guardar contenido académico.
+ * Jefes de programa siempre usan su sector; admin conserva el existente.
+ */
+function cset_academic_program_area(?array $item): ?string {
+    if ($item !== null && array_key_exists('program_area', $item)) {
+        $existing = trim((string) ($item['program_area'] ?? ''));
+        if ($existing !== '') {
+            return $existing;
+        }
+    }
+    if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
+        $area = Session::userProgramArea();
+        return $area !== null && trim($area) !== '' ? trim($area) : null;
+    }
+    return null;
+}
+
+/** Listado académico del panel: admin ve todo; demás usuarios solo lo que subieron. */
+function cset_academic_list_for_user(): array {
+    $items = AcademicContent::all();
+    if (Session::hasRole('admin')) {
+        return $items;
+    }
+    $userId = Session::userId();
+    if (!$userId) {
+        return [];
+    }
+    return array_values(array_filter(
+        $items,
+        static fn(array $item): bool => (int) ($item['created_by'] ?? 0) === $userId
+    ));
+}
+
+/** Puede ver/editar/eliminar un ítem académico en el panel. */
+function cset_can_manage_academic_item(?array $item): bool {
+    if (!$item) {
+        return false;
+    }
+    if (Session::hasRole('admin')) {
+        return true;
+    }
+    $userId = Session::userId();
+    return $userId !== null && (int) ($item['created_by'] ?? 0) === $userId;
+}
+
+/** Módulos del panel deshabilitados (sin entrada en menú ni CRUD). */
+function cset_panel_module_enabled(string $module): bool {
+    return !in_array($module, PANEL_DISABLED_MODULES, true);
+}
+
+function cset_require_panel_module(string $module): void {
+    if (!cset_panel_module_enabled($module)) {
+        redirect(cset_url('admin/dashboard.php'));
+    }
+}
+
 function cset_nav_key(): string {
     $uri = $_SERVER['REQUEST_URI'] ?? '';
     $pairs = [

@@ -18,6 +18,12 @@ abstract class BaseController {
         Auth::requireRoleApi('admin');
     }
 
+    protected function requirePanelModule(string $module): void {
+        if (in_array($module, PANEL_DISABLED_MODULES, true)) {
+            $this->fail('Módulo no disponible', 403);
+        }
+    }
+
     protected function requireCsrf(): void {
         Security::verifyCsrfRequest();
     }
