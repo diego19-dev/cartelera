@@ -128,4 +128,27 @@ class UsersController extends BaseController {
         unset($user['password_hash']);
         $this->ok(['item' => $user]);
     }
+
+    public function destroy(int $id): void {
+        $this->requireAdmin();
+        $this->requireCsrf();
+        $existing = User::find($id);
+        if (!$existing) {
+            $this->fail('No encontrado', 404);
+        }
+        $data = Security::sanitizeArray($this->jsonInput());
+        $typed = trim((string) ($data['confirm_username'] ?? ''));
+        if (!hash_equals((string) $existing['username'], $typed)) {
+            $this->fail('Escriba el usuario de ingreso exactamente para confirmar la eliminación.', 422);
+        }
+        try {
+            User::delete($id, (int) Session::userId());
+        } catch (RuntimeException $e) {
+            $this->fail($e->getMessage(), 422);
+        }
+        Logger::log(Session::userId(), 'delete_user', 'users', $id, [
+            'username' => $existing['username'],
+        ]);
+        $this->ok(['message' => 'Eliminado']);
+    }
 }

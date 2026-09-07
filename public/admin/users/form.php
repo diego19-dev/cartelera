@@ -9,8 +9,33 @@ Auth::requireRole(['admin']);
 $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
 $item = $id ? User::find($id) : null;
 $error = '';
+$actorId = (int) Session::userId();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
+    require_post_csrf();
+    try {
+        if ($id <= 0 || !$item) {
+            throw new RuntimeException('Usuario no encontrado.');
+        }
+        $typed = trim((string) ($_POST['confirm_username'] ?? ''));
+        if (!hash_equals((string) $item['username'], $typed)) {
+            throw new RuntimeException('Escriba el usuario de ingreso exactamente para confirmar la eliminación.');
+        }
+        User::delete($id, $actorId);
+        Logger::log($actorId, 'delete_user', 'users', $id, [
+            'username' => $item['username'],
+        ]);
+        flash_set('success', 'Usuario eliminado.');
+        redirect(APP_BASE . '/admin/users/index.php');
+    } catch (RuntimeException $e) {
+        $error = $e->getMessage();
+    } catch (Throwable $e) {
+        Logger::error('delete_user failed', ['id' => $id, 'error' => $e->getMessage()]);
+        $error = 'No se pudo eliminar el usuario.';
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'delete') {
     require_post_csrf();
     try {
         $validated = cset_validate_user_fields(
@@ -68,6 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = $id ? 'Editar usuario' : 'Nuevo usuario';
 require BASE_PATH . '/src/Views/header.php';
 $v = $item ?? [];
+$deleteBlockReason = $id > 0
+    ? User::deletionBlockReason($item, $actorId, User::countAdmins())
+    : null;
+$canDelete = $deleteBlockReason === null && $id > 0;
+$confirmUsername = (string) ($item['username'] ?? '');
 ?>
 <?php if ($error): ?><div class="alert alert-error"><?= e($error) ?></div><?php endif; ?>
 <div class="card"><form method="post" id="user-form" autocomplete="off" novalidate>
@@ -109,6 +139,26 @@ $v = $item ?? [];
 <a class="btn btn-ghost" href="<?= e(APP_BASE) ?>/admin/users/index.php">Cancelar</a>
 </div>
 </form></div>
+<?php if ($id > 0): ?>
+<div class="card danger-zone" id="eliminar-usuario">
+<h2>Eliminar usuario</h2>
+<?php if ($deleteBlockReason): ?>
+<p class="hint"><?= e($deleteBlockReason) ?></p>
+<?php else: ?>
+<p class="hint">Esta acción es permanente. El contenido que haya publicado se conserva sin autor y sus sesiones se cierran. No se puede deshacer.</p>
+<form method="post" id="delete-user-form" autocomplete="off">
+<?= Security::csrfField() ?>
+<input type="hidden" name="id" value="<?= (int) $id ?>">
+<input type="hidden" name="action" value="delete">
+<div class="form-group">
+<label for="confirm-username">Escriba <strong><?= e($confirmUsername) ?></strong> para confirmar</label>
+<input id="confirm-username" name="confirm_username" required autocomplete="off" spellcheck="false">
+</div>
+<button class="btn btn-danger" id="delete-user-btn" type="submit" disabled>Eliminar cuenta</button>
+</form>
+<?php endif; ?>
+</div>
+<?php endif; ?>
 <script src="<?= e(cset_url('assets/js/password-form.js')) ?>?v=1"></script>
 <script>
 (function () {
@@ -122,6 +172,32 @@ $v = $item ?? [];
   }
   role && role.addEventListener('change', syncArea);
   syncArea();
+
+  var confirmInput = document.getElementById('confirm-username');
+  var deleteBtn = document.getElementById('delete-user-btn');
+  var deleteForm = document.getElementById('delete-user-form');
+  var expectedUsername = <?= json_encode($canDelete ? $confirmUsername : '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+  var deleteConfirmed = false;
+  function syncDelete() {
+    if (!confirmInput || !deleteBtn) return;
+    deleteBtn.disabled = confirmInput.value !== expectedUsername;
+  }
+  confirmInput && confirmInput.addEventListener('input', syncDelete);
+  syncDelete();
+
+  deleteForm && deleteForm.addEventListener('submit', function (e) {
+    if (deleteConfirmed) return;
+    e.preventDefault();
+    if (!confirmInput || confirmInput.value !== expectedUsername) return;
+    var ask = typeof window.csetConfirm === 'function'
+      ? window.csetConfirm('Eliminar usuario', '¿Eliminar este usuario de forma permanente? Esta acción no se puede deshacer.')
+      : Promise.resolve(window.confirm('¿Eliminar este usuario de forma permanente?'));
+    ask.then(function (ok) {
+      if (!ok) return;
+      deleteConfirmed = true;
+      deleteForm.submit();
+    });
+  });
 })();
 </script>
 <?php require BASE_PATH . '/src/Views/footer.php'; ?>

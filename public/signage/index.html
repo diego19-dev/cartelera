@@ -3192,11 +3192,26 @@ body {
     fetchData().then(schedulePoll);
   }
 
+  function isEmbeddedPreview() {
+    try {
+      if (window.self !== window.top) return true;
+    } catch (e) {
+      return true;
+    }
+    try {
+      var q = location.search || '';
+      return /(?:^|[?&])preview=1(?:&|$)/.test(q);
+    } catch (e2) {
+      return false;
+    }
+  }
+
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
   }
 
   function isFullscreenEnabled() {
+    if (isEmbeddedPreview()) return false;
     var v = state.config && state.config.tv_fullscreen;
     if (v === false || v === 0 || v === '0' || v === 'false') return false;
     return true;
@@ -3232,10 +3247,12 @@ body {
     tryAutoFullscreen();
   });
 
-  document.addEventListener('pointerdown', onFsGesture, true);
-  document.addEventListener('touchstart', onFsGesture, true);
-  document.addEventListener('click', onFsGesture, true);
-  document.addEventListener('keydown', onFsGesture, true);
+  if (!isEmbeddedPreview()) {
+    document.addEventListener('pointerdown', onFsGesture, true);
+    document.addEventListener('touchstart', onFsGesture, true);
+    document.addEventListener('click', onFsGesture, true);
+    document.addEventListener('keydown', onFsGesture, true);
+  }
 
   /* Admin emite cset-config-update; aplicar branding al instante si el navegador lo soporta */
   if (typeof BroadcastChannel !== 'undefined') {

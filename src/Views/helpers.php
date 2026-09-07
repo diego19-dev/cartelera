@@ -89,6 +89,14 @@ function cset_url(string $path = ''): string {
     return $path === '' ? $base . '/' : $base . '/' . $path;
 }
 
+/** Destino post-login / “inicio” según rol. */
+function cset_panel_home_url(): string {
+    if (Session::hasRole('admin')) {
+        return cset_url('admin/dashboard.php');
+    }
+    return cset_url('admin/academic/index.php');
+}
+
 function cset_can_manage_users(): bool {
     return Session::hasRole('admin');
 }
@@ -145,18 +153,18 @@ function cset_validate_user_fields(string $role, ?string $programArea): array {
 
 /**
  * Área de programa al guardar contenido académico.
- * Jefes de programa siempre usan su sector; admin conserva el existente.
+ * Jefes de programa siempre usan su sector; admin/editor conservan el existente o el enviado.
  */
 function cset_academic_program_area(?array $item): ?string {
+    if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
+        $area = Session::userProgramArea();
+        return $area !== null && trim($area) !== '' ? trim($area) : null;
+    }
     if ($item !== null && array_key_exists('program_area', $item)) {
         $existing = trim((string) ($item['program_area'] ?? ''));
         if ($existing !== '') {
             return $existing;
         }
-    }
-    if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
-        $area = Session::userProgramArea();
-        return $area !== null && trim($area) !== '' ? trim($area) : null;
     }
     return null;
 }

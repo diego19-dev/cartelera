@@ -43,6 +43,7 @@ require BASE_PATH . '/src/Views/header.php';
   <td class="actions">
     <a class="btn btn-ghost btn-sm" href="<?= e(APP_BASE) ?>/admin/users/form.php?id=<?= (int)$row['id'] ?>">Editar</a>
     <?php if ((int)$row['id'] !== (int)Session::userId()): ?>
+    <a class="btn btn-ghost btn-sm" href="<?= e(APP_BASE) ?>/admin/users/form.php?id=<?= (int)$row['id'] ?>#eliminar-usuario">Eliminar</a>
     <form method="post">
       <?= Security::csrfField() ?>
       <input type="hidden" name="action" value="toggle">

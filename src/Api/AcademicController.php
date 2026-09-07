@@ -114,6 +114,10 @@ class AcademicController extends BaseController {
     }
 
     private function resolveProgramArea(?array $existing, array $data): ?string {
+        if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
+            $area = Session::userProgramArea();
+            return $area !== null && trim($area) !== '' ? trim($area) : null;
+        }
         $fromPayload = trim((string) ($data['program_area'] ?? ''));
         if ($fromPayload !== '') {
             return $fromPayload;
@@ -123,10 +127,6 @@ class AcademicController extends BaseController {
             if ($fromExisting !== '') {
                 return $fromExisting;
             }
-        }
-        if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
-            $area = Session::userProgramArea();
-            return $area !== null && trim($area) !== '' ? trim($area) : null;
         }
         return null;
     }

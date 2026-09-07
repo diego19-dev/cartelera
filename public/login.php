@@ -3,7 +3,7 @@ require_once __DIR__ . '/../src/Core/bootstrap.php';
 require_once BASE_PATH . '/src/Views/helpers.php';
 
 if (Session::isAuthenticated()) {
-    header('Location: ' . cset_url('admin/dashboard.php'));
+    header('Location: ' . cset_panel_home_url());
     exit;
 }
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'path' => APP_BASE . '/',
                 ]);
             }
-            header('Location: ' . cset_url('admin/dashboard.php'));
+            header('Location: ' . cset_panel_home_url());
             exit;
         }
     }

@@ -51,11 +51,12 @@ class AcademicUploadPermissionsTest extends TestCase {
         $this->assertSame('tecnologia', cset_academic_program_area(null));
     }
 
-    public function test_academic_program_area_keeps_existing_when_set(): void {
+    public function test_academic_program_area_program_head_keeps_own_sector_on_edit(): void {
         require_once BASE_PATH . '/src/Views/helpers.php';
         $this->asProgramHead('tecnologia');
         $item = ['program_area' => 'salud'];
-        $this->assertSame('salud', cset_academic_program_area($item));
+        $this->assertSame('tecnologia', cset_academic_program_area($item));
+        $this->assertTrue(\Auth::canEditArea(cset_academic_program_area($item)));
     }
 
     public function test_academic_program_area_uses_session_when_existing_empty(): void {
@@ -63,5 +64,14 @@ class AcademicUploadPermissionsTest extends TestCase {
         $this->asProgramHead('tecnologia');
         $item = ['program_area' => ''];
         $this->assertSame('tecnologia', cset_academic_program_area($item));
+    }
+
+    public function test_academic_program_area_admin_keeps_existing(): void {
+        require_once BASE_PATH . '/src/Views/helpers.php';
+        $_SESSION['user_id'] = 1;
+        $_SESSION['user_role'] = 'admin';
+        $_SESSION['user_program_area'] = null;
+        $item = ['program_area' => 'salud'];
+        $this->assertSame('salud', cset_academic_program_area($item));
     }
 }

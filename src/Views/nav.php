@@ -1,5 +1,5 @@
 <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto p-3" aria-label="Navegación principal">
-    <a href="<?= e(cset_url('admin/dashboard.php')) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active('dashboard')) ?>">
+    <a href="<?= e(cset_panel_home_url()) ?>" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white/10 <?= e(cset_nav_active(Session::hasRole('admin') ? 'dashboard' : 'academic')) ?>">
         <?= cset_icon('home') ?> Inicio
     </a>
     <div class="px-3 pt-4 text-xs font-semibold uppercase tracking-wide text-white/50">Contenido</div>

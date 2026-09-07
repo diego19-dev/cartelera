@@ -88,6 +88,15 @@
   }
   okBtn && okBtn.addEventListener('click', () => closeConfirm(true));
   cancelBtn && cancelBtn.addEventListener('click', () => closeConfirm(false));
+  dialog && dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) closeConfirm(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dialog && !dialog.classList.contains('hidden')) {
+      e.preventDefault();
+      closeConfirm(false);
+    }
+  });
 
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-toggle-url]');

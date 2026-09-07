@@ -94,15 +94,26 @@ require BASE_PATH . '/src/Views/header.php';
   <?php endif; ?>
 </div>
 
+<?php if ($isAdmin): ?>
 <div class="card mt-6">
   <div class="mb-4 flex items-center justify-between gap-3">
     <h3 class="font-semibold">Vista previa TV</h3>
     <a class="btn btn-primary" href="<?= e(cset_url('')) ?>" target="_blank" rel="noopener">Abrir TV</a>
   </div>
-  <div class="relative aspect-video w-full overflow-hidden rounded-xl border border-surface-border bg-black" data-tv-preview>
+  <div class="relative aspect-video w-full overflow-hidden rounded-xl border border-surface-border bg-black pointer-events-none" data-tv-preview>
     <div class="origin-top-left" data-tv-scale style="width:1920px;height:1080px">
-      <iframe title="TV Preview" src="<?= e(cset_url('')) ?>" width="1920" height="1080" class="block border-0"></iframe>
+      <iframe title="TV Preview" src="<?= e(cset_url('?preview=1')) ?>" width="1920" height="1080" class="block border-0" tabindex="-1" loading="lazy"></iframe>
     </div>
   </div>
 </div>
+<?php else: ?>
+<div class="card mt-6">
+  <h3 class="mb-2 font-semibold">Tu espacio de trabajo</h3>
+  <p class="mb-4 text-sm text-surface-muted">Como jefe de programa puedes gestionar el contenido académico de tu sector. La cartelera en vivo se abre en otra pestaña.</p>
+  <div class="actions">
+    <a class="btn" href="<?= e(cset_url('admin/academic/index.php')) ?>">Ir a Información Académica</a>
+    <a class="btn btn-ghost" href="<?= e(cset_url('')) ?>" target="_blank" rel="noopener">Abrir TV</a>
+  </div>
+</div>
+<?php endif; ?>
 <?php require BASE_PATH . '/src/Views/footer.php'; ?>

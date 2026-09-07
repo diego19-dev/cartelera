@@ -46,4 +46,67 @@ class User {
             [$id]
         )->rowCount();
     }
+
+    public static function countAdmins(): int {
+        return (int) Database::getInstance()->fetchColumn(
+            "SELECT COUNT(*) FROM users WHERE role = 'admin'"
+        );
+    }
+
+    /**
+     * @param array<string, mixed>|null $target
+     */
+    public static function deletionBlockReason(?array $target, int $actorId, int $adminCount): ?string {
+        if ($target === null) {
+            return 'Usuario no encontrado.';
+        }
+        if ((int) $target['id'] === $actorId) {
+            return 'No puede eliminar su propia cuenta.';
+        }
+        if (($target['role'] ?? '') === 'admin' && $adminCount <= 1) {
+            return 'No se puede eliminar al último administrador del sistema.';
+        }
+        return null;
+    }
+
+    public static function delete(int $id, int $actorId): void {
+        $target = self::find($id);
+        $reason = self::deletionBlockReason($target, $actorId, self::countAdmins());
+        if ($reason !== null) {
+            throw new RuntimeException($reason);
+        }
+
+        $db = Database::getInstance();
+        $db->beginTransaction();
+        try {
+            self::detachReferences($id);
+            $deleted = $db->delete('users', 'id = :id', ['id' => $id]);
+            if ($deleted < 1) {
+                throw new RuntimeException('No se pudo eliminar el usuario.');
+            }
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollback();
+            if ($e instanceof RuntimeException) {
+                throw $e;
+            }
+            throw new RuntimeException('No se pudo eliminar el usuario.', 0, $e);
+        }
+    }
+
+    private static function detachReferences(int $id): void {
+        $db = Database::getInstance();
+        $updates = [
+            'UPDATE academic_content SET created_by = NULL WHERE created_by = ?',
+            'UPDATE center_content SET created_by = NULL WHERE created_by = ?',
+            'UPDATE general_content SET created_by = NULL WHERE created_by = ?',
+            'UPDATE gallery_content SET created_by = NULL WHERE created_by = ?',
+            'UPDATE media_files SET uploaded_by = NULL WHERE uploaded_by = ?',
+            'UPDATE display_config SET updated_by = NULL WHERE updated_by = ?',
+            'UPDATE activity_log SET user_id = NULL WHERE user_id = ?',
+        ];
+        foreach ($updates as $sql) {
+            $db->query($sql, [$id]);
+        }
+    }
 }

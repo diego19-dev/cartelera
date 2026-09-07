@@ -120,6 +120,7 @@ class ApiDispatcher {
             if ($method === 'POST' && $id === null) return $c->store();
             if (($method === 'PUT' || $method === 'PATCH' || $method === 'POST') && $id && $action !== 'toggle') return $c->update($id);
             if ($method === 'PATCH' && $id && $action === 'toggle') return $c->toggle($id);
+            if ($method === 'DELETE' && $id) return $c->destroy($id);
         }
 
         if ($resource === 'config') {
