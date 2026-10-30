@@ -1,53 +1,28 @@
-# Dependencias
-/vendor/
+# Environment & Sensitive files
+.env
+.env.*
+!.env.example
 
-# Build / cache
+# Logs, Cache & Backups
+logs/**
+!logs/**/
+!logs/**/.gitkeep
 *.log
 
-# Entorno y secretos
-/.env
-/.env.*
-!/.env.example
-.cursor/mcp.json
+# Media uploads (preserving directory structure)
+img/uploads/**
+!img/uploads/**/
+!img/uploads/**/.gitkeep
 
-# PHP / tests
-.phpunit.result.cache
-.phpunit.cache/
+# Composer vendor (if generated)
+vendor/
+lib/vendor/
 
-# IDE / OS
-.idea/
-.vscode/
-*.swp
-*.swo
+# System and Editor files
 .DS_Store
 Thumbs.db
-
-# Storage local
-/storage/logs/*
-!/storage/logs/.gitkeep
-/storage/cache/*
-!/storage/cache/.gitkeep
-
-# Archivos temporales
-*.rar
-*.zip
-*.tar.gz
-.build-tmp/
-
-# Binarios locales (ffmpeg estático para transcode Signage)
-/tools/bin/*
-!/tools/bin/.gitkeep
-
-# Brainstorm / visual companion local
-.superpowers/
-
-# Git worktrees locales
-.worktrees/
-
-# DocumentRoot temporal del servidor local (scripts/dev.sh)
-.dev-docroot/
-
-# Backups locales
-/backups/*
-!/backups/.htaccess
-!/backups/README.md
+.idea/
+.vscode/
+.cursor/
+*.tmp
+*.bak

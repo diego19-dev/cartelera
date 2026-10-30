@@ -1,0 +1,132 @@
+# CSET — único .htaccess (raíz del repo = Alias /tv)
+# Apache: Alias /tv → ruta absoluta de este repo + AllowOverride All
+Options -Indexes
+
+<IfModule mod_php.c>
+php_value upload_max_filesize 500M
+php_value post_max_size 500M
+php_value memory_limit 512M
+php_value max_input_time 300
+php_value max_execution_time 300
+</IfModule>
+<IfModule mod_php8.c>
+php_value upload_max_filesize 500M
+php_value post_max_size 500M
+php_value memory_limit 512M
+php_value max_input_time 300
+php_value max_execution_time 300
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /tv/
+
+    # Bloquear acceso directo a rutas sensibles
+    RewriteCond %{THE_REQUEST} \s/+tv/(src|lib|logs|cambios|scripts|docs|vendor)/ [NC]
+    RewriteRule ^ - [F,L]
+    RewriteCond %{THE_REQUEST} \s/+tv/\.env [NC]
+    RewriteRule ^ - [F,L]
+
+    # Compatibilidad URLs cortas
+    RewriteRule ^login/?$ login.php [R=301,L]
+    RewriteRule ^admin/dashboard/?$ admin/dashboard.php [R=301,L]
+    RewriteRule ^tv-modern(/.*)?$ /tv/ [R=301,L]
+
+    # Legacy → rutas actuales
+    RewriteRule ^assets/css/(.*)$ css/$1 [R=301,L]
+    RewriteRule ^assets/js/(.*)$ js/$1 [R=301,L]
+    RewriteRule ^assets/uploads/(.*)$ img/uploads/$1 [R=301,L]
+
+    # Raíz /tv/ = cartelera
+    RewriteRule ^$ index.php [L]
+
+    # Entradas web → src/ (nombres en español)
+    RewriteRule ^login\.php$ src/iniciar_sesion.php [L]
+    RewriteRule ^logout\.php$ src/cerrar_sesion.php [L]
+
+    RewriteRule ^admin/dashboard\.php$ src/panel_inicio.php [L]
+    RewriteRule ^admin/academic/?$ src/panel_academico.php [L]
+    RewriteRule ^admin/academic/index\.php$ src/panel_academico.php [L]
+    RewriteRule ^admin/academic/form\.php$ src/panel_academico_formulario.php [L]
+    RewriteRule ^admin/center/?$ src/panel_centro.php [L]
+    RewriteRule ^admin/center/index\.php$ src/panel_centro.php [L]
+    RewriteRule ^admin/center/form\.php$ src/panel_centro_formulario.php [L]
+    RewriteRule ^admin/gallery/?$ src/panel_galeria.php [L]
+    RewriteRule ^admin/gallery/index\.php$ src/panel_galeria.php [L]
+    RewriteRule ^admin/gallery/form\.php$ src/panel_galeria_formulario.php [L]
+    RewriteRule ^admin/general/?$ src/panel_general.php [L]
+    RewriteRule ^admin/general/index\.php$ src/panel_general.php [L]
+    RewriteRule ^admin/general/form\.php$ src/panel_general_formulario.php [L]
+    RewriteRule ^admin/users/?$ src/panel_usuarios.php [L]
+    RewriteRule ^admin/users/index\.php$ src/panel_usuarios.php [L]
+    RewriteRule ^admin/users/form\.php$ src/panel_usuarios_formulario.php [L]
+    RewriteRule ^admin/config/?$ src/panel_configuracion.php [L]
+    RewriteRule ^admin/config/index\.php$ src/panel_configuracion.php [L]
+    RewriteRule ^admin/welcome/?$ src/panel_bienvenida.php [L]
+    RewriteRule ^admin/welcome/index\.php$ src/panel_bienvenida.php [L]
+    RewriteRule ^admin/media/?$ src/panel_medios.php [L]
+    RewriteRule ^admin/media/index\.php$ src/panel_medios.php [L]
+
+    # No ejecutar PHP en uploads
+    RewriteRule ^img/uploads/.*\.(php|phtml|php3|php4|php5|phar)$ - [F,L]
+
+    # API
+    RewriteCond %{REQUEST_URI} !index\.php [NC]
+    RewriteRule ^api(?:/(.*))?$ src/api.php/$1 [QSA,L]
+
+    # Archivos reales (css, js, img, index.php)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^img/uploads/ - [R=404,L]
+    RewriteRule ^ - [R=404,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    <FilesMatch "\.(html|css|js)$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+
+    <If "%{REQUEST_URI} =~ m#/img/uploads/#">
+        Header unset Content-Security-Policy
+        Header set Accept-Ranges "bytes"
+        Header set Cache-Control "public, max-age=604800"
+    </If>
+</IfModule>
+
+<IfModule mod_mime.c>
+    AddType video/mp4 .mp4 .m4v
+    AddType video/webm .webm
+    AddType video/ogg .ogv .ogg
+    AddType application/vnd.apple.mpegurl .m3u8
+    AddType audio/mpeg .mp3
+    AddType audio/ogg .ogg
+    AddType audio/wav .wav
+    AddType image/svg+xml .svg
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/webp .webp
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 7 days"
+    ExpiresByType image/png "access plus 7 days"
+    ExpiresByType image/webp "access plus 7 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+    ExpiresByType video/mp4 "access plus 30 days"
+    ExpiresByType video/webm "access plus 30 days"
+    ExpiresByType audio/mpeg "access plus 30 days"
+    ExpiresByType text/css "access plus 1 day"
+    ExpiresByType application/javascript "access plus 1 day"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+</IfModule>
