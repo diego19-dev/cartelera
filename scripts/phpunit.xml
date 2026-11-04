@@ -7,5 +7,8 @@
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
+        <testsuite name="UnitariasPhp">
+            <directory>tests/unitarias_php</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
