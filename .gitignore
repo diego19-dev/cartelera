@@ -16,7 +16,8 @@ img/uploads/**
 
 # Composer vendor (if generated)
 vendor/
-lib/vendor/
+lib/
+scripts/composer.phar
 
 # System and Editor files
 .DS_Store
