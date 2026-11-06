@@ -60,6 +60,7 @@ require_once $srcPath . '/EnvLoader.php';
 require_once $srcPath . '/Security.php';
 require_once $srcPath . '/ContentValidity.php';
 require_once $srcPath . '/VideoDuration.php';
+require_once $srcPath . '/User.php';
 
 // EnvLoader usa self::$loaded; lo inicializamos sin leer ningún .env
 // (no existe en entorno de pruebas y no hace falta).
