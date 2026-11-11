@@ -64,3 +64,5 @@ require_once $srcPath . '/User.php';
 
 // EnvLoader usa self::$loaded; lo inicializamos sin leer ningún .env
 // (no existe en entorno de pruebas y no hace falta).
+require_once $srcPath . '/LoginAttempt.php';
+require_once $srcPath . '/DisplayConfig.php';
