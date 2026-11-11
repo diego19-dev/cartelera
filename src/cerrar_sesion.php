@@ -1,4 +1,11 @@
 <?php
+/**
+ * Cierre de sesión del panel administrativo (/tv/logout.php).
+ *
+ * Invalida la sesión actual en Session::destroy() vía Auth::logout(),
+ * verifica token CSRF si la petición es POST y redirige al formulario
+ * de inicio de sesión (/tv/login.php).
+ */
 require_once __DIR__ . '/bootstrap.php';
 require_once BASE_PATH . '/src/helpers.php';
 

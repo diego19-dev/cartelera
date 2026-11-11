@@ -56,6 +56,12 @@ class GalleryContent {
             'id = :id', ['id' => $id]);
     }
 
+    /**
+     * Normaliza y complementa los datos crudos de una imagen de galería para su persistencia.
+     *
+     * @param array<string, mixed> $data Datos recibidos del formulario o API.
+     * @return array<string, mixed> Datos estructurados con defaults y tipos validados.
+     */
     private static function normalizeData(array $data): array {
         $data['is_active'] = !empty($data['is_active']) && $data['is_active'] !== '0' && $data['is_active'] !== 'false';
 

@@ -27,6 +27,13 @@ class CenterController extends BaseController {
         $this->ok(['items' => $items]);
     }
 
+    /**
+     * Retorna el detalle de un registro específico de centro.
+     * Valida permisos por área/sector según el rol del usuario autenticado.
+     *
+     * @param int $id Identificador del contenido.
+     * @return void
+     */
     public function show(int $id): void {
         $this->requireAuth();
         $item = CenterContent::find($id);
@@ -39,6 +46,11 @@ class CenterController extends BaseController {
         $this->ok(['item' => $item]);
     }
 
+    /**
+     * Registra un nuevo contenido para el centro educativo.
+     *
+     * @return void
+     */
     public function store(): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -52,6 +64,12 @@ class CenterController extends BaseController {
         $this->ok(['item' => CenterContent::find($id)], 201);
     }
 
+    /**
+     * Actualiza un contenido existente de la sección de centro.
+     *
+     * @param int $id Identificador del contenido a modificar.
+     * @return void
+     */
     public function update(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -68,6 +86,12 @@ class CenterController extends BaseController {
         $this->ok(['item' => CenterContent::find($id)]);
     }
 
+    /**
+     * Elimina un registro de centro previa verificación de permisos.
+     *
+     * @param int $id Identificador del registro.
+     * @return void
+     */
     public function destroy(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -79,6 +103,12 @@ class CenterController extends BaseController {
         $this->ok(['message' => 'Eliminado']);
     }
 
+    /**
+     * Alterna el estado activo/inactivo de una publicación de centro.
+     *
+     * @param int $id Identificador del registro.
+     * @return void
+     */
     public function toggle(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -90,6 +120,11 @@ class CenterController extends BaseController {
         $this->ok(['item' => CenterContent::find($id)]);
     }
 
+    /**
+     * Sanitiza los datos de entrada recibidos para la sección centro.
+     *
+     * @return array<string, mixed>
+     */
     private function collectData(): array {
         $body = $this->jsonInput();
         $data = Security::sanitizeArray(array_merge($_POST, $body));
@@ -97,6 +132,12 @@ class CenterController extends BaseController {
         return $data;
     }
 
+    /**
+     * Procesa la carga de archivo multimedia adjunto y actualiza la estructura.
+     *
+     * @param array<string, mixed> $data Referencia al array de datos a persistir.
+     * @return void
+     */
     private function handleUpload(array &$data): void {
         if (!empty($_FILES['media_file']['name'])) {
             $upload = MediaController::upload($_FILES['media_file'], 'center');

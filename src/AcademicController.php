@@ -29,6 +29,12 @@ class AcademicController extends BaseController {
         $this->ok(['items' => $items]);
     }
 
+    /**
+     * Retorna el detalle de una publicación académica verificando permisos de área.
+     *
+     * @param int $id Identificador del contenido académico.
+     * @return void
+     */
     public function show(int $id): void {
         $this->requireAuth();
         $item = AcademicContent::find($id);
@@ -111,6 +117,12 @@ class AcademicController extends BaseController {
         $this->ok(['item' => AcademicContent::find($id)]);
     }
 
+    /**
+     * Determina si el usuario en sesión tiene privilegios sobre el ítem académico dado.
+     *
+     * @param array<string, mixed> $item Registro académico a evaluar.
+     * @return bool True si tiene permisos de gestión.
+     */
     private function canManageItem(array $item): bool {
         return cset_can_manage_academic_item($item);
     }
@@ -123,6 +135,12 @@ class AcademicController extends BaseController {
         return $data;
     }
 
+    /**
+     * Determina el área de programa aplicable según el rol y área del usuario actual.
+     *
+     * @param string|null $requested Área solicitada en el formulario.
+     * @return string|null Área final asignada.
+     */
     private function resolveProgramArea(?array $existing, array $data): ?string {
         if (Session::hasRole('program_head') && !Session::hasRole('admin')) {
             $area = Session::userProgramArea();

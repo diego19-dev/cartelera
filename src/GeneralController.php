@@ -22,6 +22,12 @@ class GeneralController extends BaseController {
         $this->ok(['items' => $items]);
     }
 
+    /**
+     * Retorna el detalle de un contenido general por su ID.
+     *
+     * @param int $id Identificador de la publicación general.
+     * @return void
+     */
     public function show(int $id): void {
         $this->requireAuth();
         $this->requireContentRole();
@@ -30,6 +36,11 @@ class GeneralController extends BaseController {
         $this->ok(['item' => $item]);
     }
 
+    /**
+     * Registra una nueva publicación de interés general (noticias, eventos, comunicados).
+     *
+     * @return void
+     */
     public function store(): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -45,6 +56,12 @@ class GeneralController extends BaseController {
         $this->ok(['item' => GeneralContent::find($id)], 201);
     }
 
+    /**
+     * Actualiza los datos y multimedia de un contenido general existente.
+     *
+     * @param int $id Identificador de la publicación.
+     * @return void
+     */
     public function update(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();

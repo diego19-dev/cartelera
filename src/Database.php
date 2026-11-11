@@ -163,6 +163,11 @@ class Database {
         return $stmt->rowCount();
     }
 
+    /**
+     * Inicia una transacción PDO en la base de datos.
+     *
+     * @return bool True si la transacción inició exitosamente.
+     */
     public function beginTransaction(): void {
         $this->pdo->beginTransaction();
     }
@@ -171,11 +176,21 @@ class Database {
         $this->pdo->commit();
     }
 
+    /**
+     * Revierte los cambios de la transacción PDO activa en caso de error.
+     *
+     * @return void
+     */
     public function rollback(): void {
         if ($this->pdo->inTransaction()) {
             $this->pdo->rollBack();
         }
     }
 
+    /**
+     * Impide la clonación de la instancia singleton de base de datos.
+     *
+     * @return void
+     */
     private function __clone() {}
 }

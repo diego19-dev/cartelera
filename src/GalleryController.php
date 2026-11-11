@@ -27,6 +27,12 @@ class GalleryController extends BaseController {
         $this->ok(['items' => $items]);
     }
 
+    /**
+     * Obtiene y retorna los datos de una imagen individual de la galería.
+     *
+     * @param int $id Identificador de la imagen en la galería.
+     * @return void
+     */
     public function show(int $id): void {
         $this->requireAuth();
         $this->requireContentRole();
@@ -35,6 +41,11 @@ class GalleryController extends BaseController {
         $this->ok(['item' => $item]);
     }
 
+    /**
+     * Guarda una nueva imagen en la galería tras validar formato y subirla.
+     *
+     * @return void
+     */
     public function store(): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -49,6 +60,12 @@ class GalleryController extends BaseController {
         $this->ok(['item' => GalleryContent::find($id)], 201);
     }
 
+    /**
+     * Actualiza la información o archivo de una imagen de la galería.
+     *
+     * @param int $id Identificador de la imagen.
+     * @return void
+     */
     public function update(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -65,6 +82,12 @@ class GalleryController extends BaseController {
         $this->ok(['item' => GalleryContent::find($id)]);
     }
 
+    /**
+     * Elimina un registro de la galería y su referencia de medios.
+     *
+     * @param int $id Identificador de la imagen.
+     * @return void
+     */
     public function destroy(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -76,6 +99,12 @@ class GalleryController extends BaseController {
         $this->ok(['message' => 'Eliminado']);
     }
 
+    /**
+     * Alterna la visibilidad activa/inactiva de una imagen de la galería.
+     *
+     * @param int $id Identificador de la imagen.
+     * @return void
+     */
     public function toggle(int $id): void {
         $this->requireAuth();
         $this->requireCsrf();
@@ -87,12 +116,22 @@ class GalleryController extends BaseController {
         $this->ok(['item' => GalleryContent::find($id)]);
     }
 
+    /**
+     * Exige roles autorizados para gestionar contenidos (admin, program_head, editor).
+     *
+     * @return void
+     */
     private function requireContentRole(): void {
         if (!Session::hasRole(['admin', 'program_head', 'editor'])) {
             $this->fail('Sin permisos', 403);
         }
     }
 
+    /**
+     * Sanitiza los datos de entrada recibidos para la galería.
+     *
+     * @return array<string, mixed> Campos permitidos y saneados.
+     */
     private function collectData(): array {
         $body = $this->jsonInput();
         $data = Security::sanitizeArray(array_merge($_POST, $body));

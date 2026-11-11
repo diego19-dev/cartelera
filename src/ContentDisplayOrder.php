@@ -62,6 +62,13 @@ class ContentDisplayOrder {
         }
     }
 
+    /**
+     * Renumera consecutivamente las publicaciones según la columna de orden y dirección especificadas.
+     *
+     * @param string $orderBy Nombre de la columna de ordenamiento.
+     * @param string $dir Dirección del ordenamiento (ASC o DESC).
+     * @return int Total de registros actualizados.
+     */
     private static function renumberOrderedBy(string $table, string $orderBy): void {
         $table = self::assertTable($table);
         // orderBy viene solo de constantes internas (no input de usuario).

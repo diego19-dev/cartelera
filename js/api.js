@@ -1,3 +1,9 @@
+/**
+ * Cliente HTTP y utilidades para comunicación AJAX con la API REST (/tv/api).
+ *
+ * @module api.js
+ */
+
 const API_BASE = '/tv/api';
 
 function getCsrf() {

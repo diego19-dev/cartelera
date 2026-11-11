@@ -26,6 +26,12 @@ abstract class BaseController {
         Auth::requireAuthApi();
     }
 
+    /**
+     * Exige que el usuario autenticado tenga el rol administrativo ("admin").
+     * Emite error HTTP 403 en formato JSON en caso contrario.
+     *
+     * @return void
+     */
     protected function requireAdmin(): void {
         Auth::requireRoleApi('admin');
     }
@@ -37,6 +43,12 @@ abstract class BaseController {
         }
     }
 
+    /**
+     * Valida la presencia y autenticidad del token CSRF en la petición actual.
+     * Termina la ejecución con 403 si el token es inválido o está ausente.
+     *
+     * @return void
+     */
     protected function requireCsrf(): void {
         Security::verifyCsrfRequest();
     }
@@ -63,6 +75,11 @@ abstract class BaseController {
         );
     }
 
+    /**
+     * Obtiene el cuerpo de la petición decodificado como arreglo asociativo JSON.
+     *
+     * @return array<string, mixed> Parámetros extraídos del body.
+     */
     protected function jsonInput(): array {
         return Security::jsonBody();
     }

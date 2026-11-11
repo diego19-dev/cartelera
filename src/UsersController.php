@@ -19,6 +19,12 @@ class UsersController extends BaseController {
         $this->ok(['items' => array_values($items)]);
     }
 
+    /**
+     * Retorna la información de perfil de un usuario específico sin hash de contraseña.
+     *
+     * @param int $id Identificador de usuario.
+     * @return void
+     */
     public function show(int $id): void {
         $this->requireAdmin();
         $user = User::find($id);
@@ -27,6 +33,11 @@ class UsersController extends BaseController {
         $this->ok(['item' => $user]);
     }
 
+    /**
+     * Crea una nueva cuenta de usuario en el sistema validando credenciales y roles.
+     *
+     * @return void
+     */
     public function store(): void {
         $this->requireAdmin();
         $this->requireCsrf();
@@ -66,6 +77,12 @@ class UsersController extends BaseController {
         $this->ok(['item' => $user], 201);
     }
 
+    /**
+     * Actualiza los datos de un usuario existente (nombre, rol, área, contraseña opcional).
+     *
+     * @param int $id Identificador de usuario a modificar.
+     * @return void
+     */
     public function update(int $id): void {
         $this->requireAdmin();
         $this->requireCsrf();
@@ -118,6 +135,12 @@ class UsersController extends BaseController {
         $this->ok(['item' => $user]);
     }
 
+    /**
+     * Activa o suspende el acceso de un usuario impidiendo el auto-bloqueo del admin en sesión.
+     *
+     * @param int $id Identificador de usuario.
+     * @return void
+     */
     public function toggle(int $id): void {
         $this->requireAdmin();
         $this->requireCsrf();
@@ -133,6 +156,12 @@ class UsersController extends BaseController {
         $this->ok(['item' => $user]);
     }
 
+    /**
+     * Elimina un usuario solicitando confirmación exacta del nombre de usuario.
+     *
+     * @param int $id Identificador de usuario a eliminar.
+     * @return void
+     */
     public function destroy(int $id): void {
         $this->requireAdmin();
         $this->requireCsrf();

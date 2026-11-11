@@ -1,3 +1,9 @@
+/**
+ * Validaciones dinámicas en cliente para formularios de contraseñas.
+ *
+ * @module password-form.js
+ */
+
 (function () {
   var form = document.getElementById('user-form');
   if (!form) return;

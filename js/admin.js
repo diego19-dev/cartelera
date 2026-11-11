@@ -1,3 +1,9 @@
+/**
+ * Controlador principal de interfaz de usuario del panel administrativo.
+ *
+ * @module admin.js
+ */
+
 (function () {
   const nav = document.getElementById('admin-nav');
   const backdrop = document.getElementById('nav-backdrop');
