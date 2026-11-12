@@ -66,3 +66,10 @@ require_once $srcPath . '/User.php';
 // (no existe en entorno de pruebas y no hace falta).
 require_once $srcPath . '/LoginAttempt.php';
 require_once $srcPath . '/DisplayConfig.php';
+
+// ── Constantes y carga requerida para helpers.php ──────────────────────────
+defined('APP_BASE') or define('APP_BASE', '/tv');
+defined('PANEL_ASSIGNABLE_ROLES') or define('PANEL_ASSIGNABLE_ROLES', ['admin', 'program_head']);
+defined('PANEL_DISABLED_MODULES') or define('PANEL_DISABLED_MODULES', ['center', 'gallery']);
+
+require_once $srcPath . '/helpers.php';
