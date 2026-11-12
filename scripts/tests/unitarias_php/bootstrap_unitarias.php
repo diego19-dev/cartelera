@@ -73,3 +73,9 @@ defined('PANEL_ASSIGNABLE_ROLES') or define('PANEL_ASSIGNABLE_ROLES', ['admin', 
 defined('PANEL_DISABLED_MODULES') or define('PANEL_DISABLED_MODULES', ['center', 'gallery']);
 
 require_once $srcPath . '/helpers.php';
+
+// ── Carga requerida para Icons, ContentDisplayOrder, VideoTranscoder y Router
+require_once $srcPath . '/icons.php';
+require_once $srcPath . '/ContentDisplayOrder.php';
+require_once $srcPath . '/VideoTranscoder.php';
+require_once $srcPath . '/Router.php';
