@@ -50,6 +50,35 @@ if (!class_exists('Session', false)) {
         {
             return isset($_SESSION[$key]);
         }
+
+        public static function isAuthenticated(): bool
+        {
+            return !empty($_SESSION['user_id']) || !empty($_SESSION['user_role']);
+        }
+
+        public static function hasRole(string|array $roles): bool
+        {
+            if (!self::isAuthenticated()) {
+                return false;
+            }
+            $roles = is_array($roles) ? $roles : [$roles];
+            return in_array($_SESSION['user_role'] ?? '', $roles, true);
+        }
+
+        public static function userId(): ?int
+        {
+            return isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+        }
+
+        public static function userRole(): ?string
+        {
+            return $_SESSION['user_role'] ?? null;
+        }
+
+        public static function userProgramArea(): ?string
+        {
+            return $_SESSION['user_program_area'] ?? null;
+        }
     }
 }
 
@@ -79,3 +108,7 @@ require_once $srcPath . '/icons.php';
 require_once $srcPath . '/ContentDisplayOrder.php';
 require_once $srcPath . '/VideoTranscoder.php';
 require_once $srcPath . '/Router.php';
+
+// ── Carga requerida para GalleryContent y BaseController
+require_once $srcPath . '/BaseController.php';
+require_once $srcPath . '/GalleryContent.php';
