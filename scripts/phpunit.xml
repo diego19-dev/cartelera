@@ -10,5 +10,8 @@
         <testsuite name="UnitariasPhp">
             <directory>tests/unitarias_php</directory>
         </testsuite>
+        <testsuite name="UnitariasSql">
+            <directory>tests/unitarias_sql</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
